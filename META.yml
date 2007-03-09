@@ -1,0 +1,29 @@
+---
+name: MooseX-Getopt
+version: 0.01
+author:
+  - 'Stevan Little E<lt>stevan@iinteractive.comE<gt>'
+abstract: A Moose role for processing command line options
+license: perl
+resources:
+  license: http://dev.perl.org/licenses/
+requires:
+  Getopt::Long: 2.36
+  Moose: 0.17
+build_requires:
+  Test::Exception: 0.21
+  Test::More: 0.62
+provides:
+  MooseX::Getopt:
+    file: lib/MooseX/Getopt.pm
+    version: 0.01
+  MooseX::Getopt::Meta::Attribute:
+    file: lib/MooseX/Getopt/Meta/Attribute.pm
+    version: 0.01
+  MooseX::Getopt::OptionTypeMap:
+    file: lib/MooseX/Getopt/OptionTypeMap.pm
+    version: 0.01
+generated_by: Module::Build version 0.2805
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2
