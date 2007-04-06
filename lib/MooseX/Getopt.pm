@@ -7,8 +7,10 @@ use Getopt::Long;
 use MooseX::Getopt::OptionTypeMap;
 use MooseX::Getopt::Meta::Attribute;
 
-our $VERSION   = '0.01';
+our $VERSION   = '0.02';
 our $AUTHORITY = 'cpan:STEVAN';
+
+has ARGV => (is => 'rw', isa => 'ArrayRef');
 
 sub new_with_options {
     my ($class, %params) = @_;
@@ -16,23 +18,34 @@ sub new_with_options {
     my (@options, %name_to_init_arg);
     foreach my $attr ($class->meta->compute_all_applicable_attributes) {
         my $name = $attr->name;
-        
-        if ($attr->isa('MooseX::Getopt::Meta::Attribute') && $attr->has_cmd_flag) { 
-            $name = $attr->cmd_flag;
-        }          
+
+        my $aliases;
+
+        if ($attr->isa('MooseX::Getopt::Meta::Attribute')) {
+            $name = $attr->cmd_flag if $attr->has_cmd_flag;
+            $aliases = $attr->cmd_aliases if $attr->has_cmd_aliases;
+        }
+        else {
+            next if $name =~ /^_/;
+        }
         
         $name_to_init_arg{$name} = $attr->init_arg;        
         
+        my $opt_string = $aliases
+            ? join(q{|}, $name, @$aliases)
+            : $name;
+
         if ($attr->has_type_constraint) {
             my $type_name = $attr->type_constraint->name;
             if (MooseX::Getopt::OptionTypeMap->has_option_type($type_name)) {                   
-                $name .= MooseX::Getopt::OptionTypeMap->get_option_type($type_name);
+                $opt_string .= MooseX::Getopt::OptionTypeMap->get_option_type($type_name);
             }
         }
         
-        push @options => $name;
+        push @options => $opt_string;
     }
 
+    my $saved_argv = [ @ARGV ];
     my %options;
     
     GetOptions(\%options, @options);
@@ -43,10 +56,11 @@ sub new_with_options {
     #warn Dumper \%options;
     
     $class->new(
+        ARGV => $saved_argv,
         %params, 
         map { 
             $name_to_init_arg{$_} => $options{$_} 
-        } keys %options
+        } keys %options,
     );
 }
 
@@ -93,7 +107,14 @@ This module attempts to DWIM as much as possible with the command line
 params by introspecting your class's attributes. It will use the name 
 of your attribute as the command line option, and if there is a type 
 constraint defined, it will configure Getopt::Long to handle the option
-accordingly. 
+accordingly.
+
+You can use the attribute metaclass L<MooseX::Getopt::Meta::Attribute>
+to get non-default commandline option names and aliases.
+
+By default, attributes which start with an underscore are not given
+commandline argument support, unless the attribute's metaclass is set
+to L<MooseX::Getopt::Meta::Attribute>.
 
 =head2 Supported Type Constraints
 
@@ -196,6 +217,12 @@ Better examples are certainly welcome :)
 This method will take a set of default C<%params> and then collect 
 params from the command line (possibly overriding those in C<%params>)
 and then return a newly constructed object.
+
+=item B<ARGV>
+
+This accessor contains a reference to a copy of the C<@ARGV> array
+which was copied before L<Getopt::Long> mangled it, in case you want
+to see your original options.
 
 =item B<meta>
 

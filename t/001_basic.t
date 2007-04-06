@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 37;
+use Test::More tests => 51;
 
 BEGIN {
     use_ok('MooseX::Getopt');
@@ -21,6 +21,23 @@ BEGIN {
         isa       => 'Str',
         default   => 'file.dat',
         cmd_flag  => 'f',
+    );
+
+    has 'cow' => (
+        metaclass   => 'Getopt',        
+        is          => 'ro',
+        isa         => 'Str',
+        default     => 'moo',
+        cmd_aliases => [qw/ moocow m c /],
+    );
+
+    has 'horse' => (
+        metaclass   => 'MooseX::Getopt::Meta::Attribute',        
+        is          => 'ro',
+        isa         => 'Str',
+        default     => 'bray',
+        cmd_flag    => 'horsey',
+        cmd_aliases => 'x',
     );
 
     has 'length' => (
@@ -44,7 +61,21 @@ BEGIN {
         is      => 'ro',
         isa     => 'HashRef',
         default => sub { {} },
-    );    
+    );
+
+    has '_private_stuff' => (
+        is      => 'ro',
+        isa     => 'Int',
+        default => 713
+    );
+
+    has '_private_stuff_cmdline' => (
+        metaclass => 'MooseX::Getopt::Meta::Attribute',        
+        is        => 'ro',
+        isa       => 'Int',
+        default   => 832,
+        cmd_flag  => 'p',
+    );
   
 }
 
@@ -131,5 +162,53 @@ BEGIN {
     is_deeply($app->details, {}, '... details is {} as expected');               
 }
 
+# Test cmd_alias without cmd_flag
+{
+    local @ARGV = ('--cow', '42');
+    my $app = App->new_with_options;
+    isa_ok($app, 'App');
+    is($app->cow, 42, 'cmd_alias, but not using it');
+}
+{
+    local @ARGV = ('--moocow', '88');
+    my $app = App->new_with_options;
+    isa_ok($app, 'App');
+    is($app->cow, 88, 'cmd_alias, using long one');
+}
+{
+    local @ARGV = ('-c', '99');
+    my $app = App->new_with_options;
+    isa_ok($app, 'App');
+    is($app->cow, 99, 'cmd_alias, using short one');
+}
 
+# Test cmd_alias + cmd_flag
+{
+    local @ARGV = ('--horsey', '123');
+    my $app = App->new_with_options;
+    isa_ok($app, 'App');
+    is($app->horse, 123, 'cmd_alias+cmd_flag, using flag');
+}
+{
+    local @ARGV = ('-x', '321');
+    my $app = App->new_with_options;
+    isa_ok($app, 'App');
+    is($app->horse, 321, 'cmd_alias+cmd_flag, using alias');
+}
 
+# Test _foo + cmd_flag
+{
+    local @ARGV = ('-p', '666');
+    my $app = App->new_with_options;
+    isa_ok($app, 'App');
+    is($app->_private_stuff_cmdline, 666, '_foo + cmd_flag');
+}
+
+# Test ARGV support
+{
+    my @args = ('-p', 12345, '-c', 99);
+    local @ARGV = @args;
+    my $app = App->new_with_options;
+    isa_ok($app, 'App');
+    is_deeply($app->ARGV, \@args);
+}

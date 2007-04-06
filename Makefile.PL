@@ -11,7 +11,7 @@ WriteMakefile
                            'Test::More' => '0.62',
                            'Getopt::Long' => '2.36',
                            'Test::Exception' => '0.21',
-                           'Moose' => '0.17'
+                           'Moose' => '0.19'
                          }
         )
 ;
