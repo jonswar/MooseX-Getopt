@@ -7,7 +7,7 @@ use Getopt::Long;
 use MooseX::Getopt::OptionTypeMap;
 use MooseX::Getopt::Meta::Attribute;
 
-our $VERSION   = '0.02';
+our $VERSION   = '0.03';
 our $AUTHORITY = 'cpan:STEVAN';
 
 has ARGV => (is => 'rw', isa => 'ArrayRef');
@@ -114,7 +114,17 @@ to get non-default commandline option names and aliases.
 
 By default, attributes which start with an underscore are not given
 commandline argument support, unless the attribute's metaclass is set
-to L<MooseX::Getopt::Meta::Attribute>.
+to L<MooseX::Getopt::Meta::Attribute>. If you don't want you accessors
+to have the leading underscore in thier name, you can do this:
+
+  # for read/write attributes
+  has '_foo' => (accessor => 'foo', ...);
+  
+  # or for read-only attributes
+  has '_bar' => (reader => 'bar', ...);  
+
+This will mean that Getopt will not handle a --foo param, but your 
+code can still call the C<foo> method. 
 
 =head2 Supported Type Constraints
 
@@ -239,6 +249,8 @@ to cpan-RT.
 =head1 AUTHOR
 
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+Brandon L. Black, E<lt>blblack@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

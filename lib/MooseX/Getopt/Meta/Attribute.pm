@@ -3,7 +3,7 @@ package MooseX::Getopt::Meta::Attribute;
 use Moose;
 use Moose::Util::TypeConstraints;
 
-our $VERSION   = '0.02';
+our $VERSION   = '0.03';
 our $AUTHORITY = 'cpan:STEVAN';
 
 extends 'Moose::Meta::Attribute'; # << Moose extending Moose :)
@@ -18,9 +18,10 @@ has 'cmd_flag' => (
 #  without polluting the built-in types
 subtype '_MooseX_Getopt_CmdAliases'
     => as 'ArrayRef'
-        => where { 1 };
+    => where { 1 };
+    
 coerce '_MooseX_Getopt_CmdAliases'
-    => from 'Value'
+    => from 'Str'
         => via { [$_] };
 
 has 'cmd_aliases' => (
@@ -124,6 +125,8 @@ to cpan-RT.
 =head1 AUTHOR
 
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+Brandon L. Black, E<lt>blblack@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -9,7 +9,7 @@ WriteMakefile
           'VERSION_FROM' => 'lib/MooseX/Getopt.pm',
           'PREREQ_PM' => {
                            'Test::More' => '0.62',
-                           'Getopt::Long' => '2.36',
+                           'Getopt::Long' => '2.35',
                            'Test::Exception' => '0.21',
                            'Moose' => '0.19'
                          }
