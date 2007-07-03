@@ -1,6 +1,6 @@
 ---
 name: MooseX-Getopt
-version: 0.04
+version: 0.05
 author:
   - 'Stevan Little E<lt>stevan@iinteractive.comE<gt>'
   - 'Brandon L. Black, E<lt>blblack@gmail.comE<gt>'
@@ -19,13 +19,13 @@ provides:
     file: lib/MooseX/Getopt/Meta/Attribute.pm
   MooseX::Getopt:
     file: lib/MooseX/Getopt.pm
-    version: 0.04
+    version: 0.05
   MooseX::Getopt::Meta::Attribute:
     file: lib/MooseX/Getopt/Meta/Attribute.pm
     version: 0.03
   MooseX::Getopt::OptionTypeMap:
     file: lib/MooseX/Getopt/OptionTypeMap.pm
-    version: 0.02
+    version: 0.03
 generated_by: Module::Build version 0.2805
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
