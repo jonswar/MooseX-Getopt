@@ -6,47 +6,42 @@ use Getopt::Long ();
 
 use MooseX::Getopt::OptionTypeMap;
 use MooseX::Getopt::Meta::Attribute;
+use MooseX::Getopt::Meta::Attribute::NoGetopt;
 
-our $VERSION   = '0.05';
+our $VERSION   = '0.06';
 our $AUTHORITY = 'cpan:STEVAN';
 
 has ARGV       => (is => 'rw', isa => 'ArrayRef');
 has extra_argv => (is => 'rw', isa => 'ArrayRef');
 
 sub new_with_options {
-    my ($class, %params) = @_;
+    my ($class, @params) = @_;
 
-    my (@options, %name_to_init_arg);
-    foreach my $attr ($class->meta->compute_all_applicable_attributes) {
-        my $name = $attr->name;
+    my %processed = $class->_parse_argv( 
+        options => [ 
+            $class->_attrs_to_options( @params ) 
+        ] 
+    );
 
-        my $aliases;
+    $class->new(
+        ARGV       => $processed{argv_copy},
+        extra_argv => $processed{argv},
+        @params, # explicit params to ->new
+        %{ $processed{params} }, # params from CLI
+    );
+}
 
-        if ($attr->isa('MooseX::Getopt::Meta::Attribute')) {
-            $name = $attr->cmd_flag if $attr->has_cmd_flag;
-            $aliases = $attr->cmd_aliases if $attr->has_cmd_aliases;
-        }
-        else {
-            next if $name =~ /^_/;
-        }
-        
-        $name_to_init_arg{$name} = $attr->init_arg;        
-        
-        my $opt_string = $aliases
-            ? join(q{|}, $name, @$aliases)
-            : $name;
+sub _parse_argv {
+    my ( $class, %params ) = @_;
 
-        if ($attr->has_type_constraint) {
-            my $type_name = $attr->type_constraint->name;
-            if (MooseX::Getopt::OptionTypeMap->has_option_type($type_name)) {                   
-                $opt_string .= MooseX::Getopt::OptionTypeMap->get_option_type($type_name);
-            }
-        }
-        
-        push @options => $opt_string;
+    local @ARGV = @{ $params{argv} || \@ARGV };
+
+    my ( @options, %name_to_init_arg, %options );
+
+    foreach my $opt ( @{ $params{options} } ) {
+        push @options, $opt->{opt_string};
+        $name_to_init_arg{ $opt->{name} } = $opt->{init_arg};
     }
-
-    my %options;
 
     # Get a clean copy of the original @ARGV
     my $argv_copy = [ @ARGV ];
@@ -59,22 +54,64 @@ sub new_with_options {
     # Get a copy of the Getopt::Long-mangled @ARGV
     my $argv_mangled = [ @ARGV ];
 
-    # Restore the original @ARGV;
-    @ARGV = @$argv_copy;
-    
-    #use Data::Dumper;
-    #warn Dumper \@options;
-    #warn Dumper \%name_to_init_arg;
-    #warn Dumper \%options;
-    
-    $class->new(
-        ARGV => $argv_copy,
-        extra_argv => $argv_mangled,
-        %params, 
-        map { 
-            $name_to_init_arg{$_} => $options{$_} 
-        } keys %options,
+    return (
+        argv_copy => $argv_copy,
+        argv      => $argv_mangled,
+        params    => {
+            map { 
+                $name_to_init_arg{$_} => $options{$_} 
+            } keys %options,   
+        }
     );
+}
+
+sub _compute_getopt_attrs {
+    my $class = shift;
+    grep {
+        $_->isa("MooseX::Getopt::Meta::Attribute")
+            or
+        $_->name !~ /^_/
+            &&
+        !$_->isa('MooseX::Getopt::Meta::Attribute::NoGetopt')
+    } $class->meta->compute_all_applicable_attributes
+}
+
+sub _attrs_to_options {
+    my $class = shift;
+
+    my @options;
+
+    foreach my $attr ($class->_compute_getopt_attrs) {
+        my $name = $attr->name;
+
+        my $aliases;
+
+        if ($attr->isa('MooseX::Getopt::Meta::Attribute')) {
+            $name = $attr->cmd_flag if $attr->has_cmd_flag;
+            $aliases = $attr->cmd_aliases if $attr->has_cmd_aliases;
+        }
+
+        my $opt_string = $aliases
+            ? join(q{|}, $name, @$aliases)
+            : $name;
+
+        if ($attr->has_type_constraint) {
+            my $type_name = $attr->type_constraint->name;
+            if (MooseX::Getopt::OptionTypeMap->has_option_type($type_name)) {                   
+                $opt_string .= MooseX::Getopt::OptionTypeMap->get_option_type($type_name);
+            }
+        }
+
+        push @options, {
+            name       => $name,
+            init_arg   => $attr->init_arg,
+            opt_string => $opt_string,
+            required   => $attr->is_required,
+            ( $attr->has_documentation ? ( doc => $attr->documentation ) : () ),
+        }
+    }
+
+    return @options;
 }
 
 no Moose::Role; 1;
@@ -124,6 +161,9 @@ accordingly.
 
 You can use the attribute metaclass L<MooseX::Getopt::Meta::Attribute>
 to get non-default commandline option names and aliases.
+
+You can use the attribute metaclass L<MooseX::Getopt::Meta::Attribute::NoGetOpt>
+to have C<MooseX::Getopt> ignore your attribute in the commandline options.
 
 By default, attributes which start with an underscore are not given
 commandline argument support, unless the attribute's metaclass is set
