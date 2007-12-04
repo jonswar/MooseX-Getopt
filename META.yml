@@ -1,6 +1,6 @@
 ---
 name: MooseX-Getopt
-version: 0.06
+version: 0.07
 author:
   - 'Stevan Little E<lt>stevan@iinteractive.comE<gt>'
   - 'Brandon L. Black, E<lt>blblack@gmail.comE<gt>'
@@ -15,13 +15,9 @@ build_requires:
   Test::Exception: 0.21
   Test::More: 0.62
 provides:
-  Moose::Meta::Attribute::Custom::Getopt:
-    file: lib/MooseX/Getopt/Meta/Attribute.pm
-  Moose::Meta::Attribute::Custom::NoGetopt:
-    file: lib/MooseX/Getopt/Meta/Attribute/NoGetopt.pm
   MooseX::Getopt:
     file: lib/MooseX/Getopt.pm
-    version: 0.06
+    version: 0.07
   MooseX::Getopt::Meta::Attribute:
     file: lib/MooseX/Getopt/Meta/Attribute.pm
     version: 0.04
