@@ -1,6 +1,6 @@
 ---
 name: MooseX-Getopt
-version: 0.07
+version: 0.08
 author:
   - 'Stevan Little E<lt>stevan@iinteractive.comE<gt>'
   - 'Brandon L. Black, E<lt>blblack@gmail.comE<gt>'
@@ -17,7 +17,7 @@ build_requires:
 provides:
   MooseX::Getopt:
     file: lib/MooseX/Getopt.pm
-    version: 0.07
+    version: 0.08
   MooseX::Getopt::Meta::Attribute:
     file: lib/MooseX/Getopt/Meta/Attribute.pm
     version: 0.04
