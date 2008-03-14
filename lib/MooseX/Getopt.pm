@@ -9,7 +9,7 @@ use MooseX::Getopt::Meta::Attribute::NoGetopt;
 use Getopt::Long (); # GLD uses it anyway, doesn't hurt
 use constant HAVE_GLD => not not eval { require Getopt::Long::Descriptive };
 
-our $VERSION   = '0.11';
+our $VERSION   = '0.12';
 our $AUTHORITY = 'cpan:STEVAN';
 
 has ARGV       => (is => 'rw', isa => 'ArrayRef', metaclass => "NoGetopt");
@@ -107,7 +107,11 @@ sub _traditional_spec {
 
     foreach my $opt ( @{ $params{options} } ) {
         push @options, $opt->{opt_string};
-        $name_to_init_arg{ $opt->{name} } = $opt->{init_arg};
+
+        my $identifier = $opt->{name};
+        $identifier =~ s/\W/_/g; # Getopt::Long does this to all option names
+
+        $name_to_init_arg{$identifier} = $opt->{init_arg};
     }
 
     return ( \@options, \%name_to_init_arg );
@@ -128,7 +132,10 @@ sub _gld_spec {
             },
         ];
 
-        $name_to_init_arg{ $opt->{name} } = $opt->{init_arg};
+        my $identifier = $opt->{name};
+        $identifier =~ s/\W/_/g; # Getopt::Long does this to all option names
+
+        $name_to_init_arg{$identifier} = $opt->{init_arg};
     }
 
     return ( \@options, \%name_to_init_arg );
@@ -137,12 +144,27 @@ sub _gld_spec {
 sub _compute_getopt_attrs {
     my $class = shift;
     grep {
-        $_->isa("MooseX::Getopt::Meta::Attribute")
+        $_->does("MooseX::Getopt::Meta::Attribute::Trait")
             or
         $_->name !~ /^_/
-            &&
-        !$_->isa('MooseX::Getopt::Meta::Attribute::NoGetopt')
+    } grep {
+        !$_->does('MooseX::Getopt::Meta::Attribute::Trait::NoGetopt')
     } $class->meta->compute_all_applicable_attributes
+}
+
+sub _get_cmd_flags_for_attr {
+    my ( $class, $attr ) = @_;
+
+    my $flag = $attr->name;
+
+    my @aliases;
+
+    if ($attr->does('MooseX::Getopt::Meta::Attribute::Trait')) {
+        $flag = $attr->cmd_flag if $attr->has_cmd_flag;
+        @aliases = @{ $attr->cmd_aliases } if $attr->has_cmd_aliases;
+    }
+
+    return ( $flag, @aliases );
 }
 
 sub _attrs_to_options {
@@ -151,18 +173,9 @@ sub _attrs_to_options {
     my @options;
 
     foreach my $attr ($class->_compute_getopt_attrs) {
-        my $name = $attr->name;
+        my ( $flag, @aliases ) = $class->_get_cmd_flags_for_attr($attr);
 
-        my $aliases;
-
-        if ($attr->isa('MooseX::Getopt::Meta::Attribute')) {
-            $name = $attr->cmd_flag if $attr->has_cmd_flag;
-            $aliases = $attr->cmd_aliases if $attr->has_cmd_aliases;
-        }
-
-        my $opt_string = $aliases
-            ? join(q{|}, $name, @$aliases)
-            : $name;
+        my $opt_string = join(q{|}, $flag, @aliases);
 
         if ($attr->has_type_constraint) {
             my $type_name = $attr->type_constraint->name;
@@ -172,7 +185,7 @@ sub _attrs_to_options {
         }
 
         push @options, {
-            name       => $name,
+            name       => $flag,
             init_arg   => $attr->init_arg,
             opt_string => $opt_string,
             required   => $attr->is_required && !$attr->has_default && !$attr->has_builder,
@@ -412,7 +425,7 @@ Brandon L. Black, E<lt>blblack@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007 by Infinity Interactive, Inc.
+Copyright 2007-2008 by Infinity Interactive, Inc.
 
 L<http://www.iinteractive.com>
 

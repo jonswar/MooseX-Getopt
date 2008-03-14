@@ -1,6 +1,6 @@
 ---
 name: MooseX-Getopt
-version: 0.11
+version: 0.12
 author:
   - 'Stevan Little E<lt>stevan@iinteractive.comE<gt>'
   - 'Brandon L. Black, E<lt>blblack@gmail.comE<gt>'
@@ -10,26 +10,32 @@ resources:
   license: http://dev.perl.org/licenses/
 requires:
   Getopt::Long: 2.34
-  Moose: 0.19
+  Moose: 0.39
 build_requires:
   Test::Exception: 0.21
   Test::More: 0.62
 provides:
   MooseX::Getopt:
     file: lib/MooseX/Getopt.pm
-    version: 0.11
+    version: 0.12
   MooseX::Getopt::Meta::Attribute:
     file: lib/MooseX/Getopt/Meta/Attribute.pm
-    version: 0.04
+    version: 0.05
   MooseX::Getopt::Meta::Attribute::NoGetopt:
     file: lib/MooseX/Getopt/Meta/Attribute/NoGetopt.pm
+    version: 0.02
+  MooseX::Getopt::Meta::Attribute::Trait:
+    file: lib/MooseX/Getopt/Meta/Attribute/Trait.pm
+    version: 0.01
+  MooseX::Getopt::Meta::Attribute::Trait::NoGetopt:
+    file: lib/MooseX/Getopt/Meta/Attribute/Trait/NoGetopt.pm
     version: 0.01
   MooseX::Getopt::OptionTypeMap:
     file: lib/MooseX/Getopt/OptionTypeMap.pm
     version: 0.03
   MooseX::Getopt::Strict:
     file: lib/MooseX/Getopt/Strict.pm
-generated_by: Module::Build version 0.280801
+generated_by: Module::Build version 0.2808
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
   version: 1.2
