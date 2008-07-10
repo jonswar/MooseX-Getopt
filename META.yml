@@ -6,7 +6,7 @@ build_requires:
   Test::Exception: 0.21
   Test::More: 0.62
 distribution_type: module
-generated_by: 'Module::Install version 0.73'
+generated_by: 'Module::Install version 0.75'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.3.html
@@ -20,5 +20,4 @@ requires:
   Getopt::Long: 2.37
   Getopt::Long::Descriptive: 0
   Moose: 0.43
-tests: t/*.t
-version: 0.13
+version: 0.14

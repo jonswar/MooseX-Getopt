@@ -6,10 +6,12 @@ use MooseX::Getopt::OptionTypeMap;
 use MooseX::Getopt::Meta::Attribute;
 use MooseX::Getopt::Meta::Attribute::NoGetopt;
 
+use Carp ();
+
 use Getopt::Long (); # GLD uses it anyway, doesn't hurt
 use constant HAVE_GLD => not not eval { require Getopt::Long::Descriptive };
 
-our $VERSION   = '0.13';
+our $VERSION   = '0.14';
 our $AUTHORITY = 'cpan:STEVAN';
 
 has ARGV       => (is => 'rw', isa => 'ArrayRef', metaclass => "NoGetopt");
@@ -36,10 +38,16 @@ sub new_with_options {
         }
     }
 
+    my $constructor_params = ( @params == 1 ? $params[0] : {@params} );
+    
+    Carp::croak("Single parameters to new_with_options() must be a HASH ref")
+        unless ref($constructor_params) eq 'HASH';
+
     my %processed = $class->_parse_argv(
         options => [
             $class->_attrs_to_options( $config_from_file )
-        ]
+        ],
+        params => $constructor_params,
     );
 
     my $params = $config_from_file ? { %$config_from_file, %{$processed{params}} } : $processed{params};
@@ -121,13 +129,21 @@ sub _gld_spec {
 
     my ( @options, %name_to_init_arg );
 
+    my $constructor_params = $params{params};
+
     foreach my $opt ( @{ $params{options} } ) {
         push @options, [
             $opt->{opt_string},
             $opt->{doc} || ' ', # FIXME new GLD shouldn't need this hack
             {
-                ( $opt->{required} ? (required => $opt->{required}) : () ),
-                ( exists $opt->{default}  ? (default  => $opt->{default})  : () ),
+                ( ( $opt->{required} && !exists($constructor_params->{$opt->{init_arg}}) ) ? (required => $opt->{required}) : () ),
+                # NOTE:
+                # remove this 'feature' because it didn't work 
+                # all the time, and so is better to not bother
+                # since Moose will handle the defaults just 
+                # fine anyway.
+                # - SL
+                #( exists $opt->{default}  ? (default  => $opt->{default})  : () ),
             },
         ];
 
@@ -189,7 +205,15 @@ sub _attrs_to_options {
             init_arg   => $attr->init_arg,
             opt_string => $opt_string,
             required   => $attr->is_required && !$attr->has_default && !$attr->has_builder && !exists $config_from_file->{$attr->name},
-            ( ( $attr->has_default && ( $attr->is_default_a_coderef xor $attr->is_lazy ) ) ? ( default => $attr->default({}) ) : () ),
+            # NOTE:
+            # this "feature" was breaking because 
+            # Getopt::Long::Descriptive would return 
+            # the default value as if it was a command 
+            # line flag, which would then override the
+            # one passed into a constructor.
+            # See 100_gld_default_bug.t for an example
+            # - SL
+            #( ( $attr->has_default && ( $attr->is_default_a_coderef xor $attr->is_lazy ) ) ? ( default => $attr->default({}) ) : () ),
             ( $attr->has_documentation ? ( doc => $attr->documentation ) : () ),
         }
     }
@@ -424,6 +448,8 @@ to cpan-RT.
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
 
 Brandon L. Black, E<lt>blblack@gmail.comE<gt>
+
+Yuval Kogman, E<lt>nothingmuch@woobling.orgE<gt>
 
 =head1 CONTRIBUTORS
 
