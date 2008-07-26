@@ -20,4 +20,4 @@ requires:
   Getopt::Long: 2.37
   Getopt::Long::Descriptive: 0
   Moose: 0.43
-version: 0.14
+version: 0.15
