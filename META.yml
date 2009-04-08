@@ -19,7 +19,7 @@ no_index:
 requires:
   Getopt::Long: 2.37
   Getopt::Long::Descriptive: 0
-  Moose: 0.43
+  Moose: 0.56
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.16
+version: 0.17

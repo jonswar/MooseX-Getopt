@@ -11,7 +11,7 @@ use Carp ();
 use Getopt::Long (); # GLD uses it anyway, doesn't hurt
 use constant HAVE_GLD => not not eval { require Getopt::Long::Descriptive };
 
-our $VERSION   = '0.16';
+our $VERSION   = '0.17';
 our $AUTHORITY = 'cpan:STEVAN';
 
 has ARGV       => (is => 'rw', isa => 'ArrayRef', metaclass => "NoGetopt");
@@ -164,7 +164,7 @@ sub _compute_getopt_attrs {
         $_->name !~ /^_/
     } grep {
         !$_->does('MooseX::Getopt::Meta::Attribute::Trait::NoGetopt')
-    } $class->meta->compute_all_applicable_attributes
+    } $class->meta->get_all_attributes
 }
 
 sub _get_cmd_flags_for_attr {
