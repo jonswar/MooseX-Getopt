@@ -3,10 +3,13 @@ abstract: 'A Moose role for processing command line options'
 author:
   - 'Stevan Little <stevan@iinteractive.com>'
 build_requires:
+  ExtUtils::MakeMaker: 6.42
   Test::Exception: 0.21
   Test::More: 0.62
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.79'
+generated_by: 'Module::Install version 0.88'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -22,4 +25,4 @@ requires:
   Moose: 0.56
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.18
+version: 0.19

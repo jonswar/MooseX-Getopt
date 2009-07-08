@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 9;
 use Test::Exception;
 
 BEGIN {
@@ -11,14 +11,13 @@ BEGIN {
 }
 
 {
-
     package App;
     use Moose;
 
-    with 'MooseX::Getopt::Strict';
+    with 'MooseX::Getopt';
 
     has 'data' => (
-        metaclass => 'Getopt',
+        traits    => ['Getopt'],
         is        => 'ro',
         isa       => 'Str',
         default   => 'file.dat',
@@ -26,7 +25,7 @@ BEGIN {
     );
 
     has 'cow' => (
-        metaclass   => 'Getopt',
+        traits      => ['Getopt'],
         is          => 'ro',
         isa         => 'Str',
         default     => 'moo',
@@ -34,7 +33,7 @@ BEGIN {
     );
 
     has 'horse' => (
-        metaclass   => 'Getopt',
+        traits      => ['Getopt'],
         is          => 'ro',
         isa         => 'Str',
         default     => 'bray',
@@ -66,10 +65,20 @@ BEGIN {
     );
 
     has 'private_stuff' => (
+        traits   => ['NoGetopt'],
         is       => 'ro',
         isa      => 'Int',
         default  => 713
     );
+
+    has '_private_stuff_cmdline' => (
+        traits    => ['Getopt'],
+        is        => 'ro',
+        isa       => 'Int',
+        default   => 832,
+        cmd_flag  => 'p',
+    );
+
 }
 
 {
@@ -91,10 +100,3 @@ BEGIN {
 
     throws_ok { App->new_with_options } qr/Unknown option: private_stuff/;
 }
-
-{
-    local @ARGV = (qw/--length 100/);
-
-    throws_ok { App->new_with_options } qr/Unknown option: length/;
-}
-
