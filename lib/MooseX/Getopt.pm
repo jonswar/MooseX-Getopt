@@ -11,7 +11,7 @@ use Carp ();
 use Getopt::Long (); # GLD uses it anyway, doesn't hurt
 use constant HAVE_GLD => not not eval { require Getopt::Long::Descriptive };
 
-our $VERSION   = '0.20';
+our $VERSION   = '0.21';
 our $AUTHORITY = 'cpan:STEVAN';
 
 has ARGV       => (is => 'rw', isa => 'ArrayRef', metaclass => "NoGetopt");
@@ -31,9 +31,16 @@ sub new_with_options {
         if(!defined $configfile) {
             my $cfmeta = $class->meta->find_attribute_by_name('configfile');
             $configfile = $cfmeta->default if $cfmeta->has_default;
+            if (defined $configfile) {
+                $config_from_file = eval {
+                    $class->get_config_from_file($configfile);
+                };
+                if ($@) {
+                    die $@ unless $@ =~ /Specified configfile '\Q$configfile\E' does not exist/;
+                }
+            }
         }
-
-        if(defined $configfile) {
+        else {
             $config_from_file = $class->get_config_from_file($configfile);
         }
     }
@@ -69,7 +76,7 @@ sub new_with_options {
 sub _parse_argv {
     my ( $class, %params ) = @_;
 
-    local @ARGV = @{ $params{argv} || \@ARGV };
+    local @ARGV = @{ $params{params}{argv} || \@ARGV };
 
     my ( $opt_spec, $name_to_init_arg ) = ( HAVE_GLD ? $class->_gld_spec(%params) : $class->_traditional_spec(%params) );
 
@@ -285,8 +292,8 @@ to have C<MooseX::Getopt> ignore your attribute in the commandline options.
 
 By default, attributes which start with an underscore are not given
 commandline argument support, unless the attribute's metaclass is set
-to L<MooseX::Getopt::Meta::Attribute>. If you don't want you accessors
-to have the leading underscore in thier name, you can do this:
+to L<MooseX::Getopt::Meta::Attribute>. If you don't want your accessors
+to have the leading underscore in their name, you can do this:
 
   # for read/write attributes
   has '_foo' => (accessor => 'foo', ...);
@@ -423,6 +430,9 @@ This method will take a set of default C<%params> and then collect
 params from the command line (possibly overriding those in C<%params>)
 and then return a newly constructed object.
 
+The special parameter C<argv>, if specified should point to an array  
+reference with an array to use instead of C<@ARGV>.
+
 If L<Getopt::Long/GetOptions> fails (due to invalid arguments),
 C<new_with_options> will throw an exception.
 
@@ -435,7 +445,7 @@ B<documentation> option for each attribute to document.
   --help
   --usage
 
-If you have L<Getopt::Long::Descriptive> a the C<usage> param is also passed to
+If you have L<Getopt::Long::Descriptive> the C<usage> param is also passed to
 C<new>.
 
 =item B<ARGV>

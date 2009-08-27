@@ -1,6 +1,5 @@
 ChangeLog
 inc/Module/Install.pm
-inc/Module/Install/AutoManifest.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
@@ -32,5 +31,6 @@ t/008_configfromfile.t
 t/009_gld_and_explicit_options.t
 t/010_dashes.t
 t/100_gld_default_bug.t
+t/101_argv_bug.t
 t/pod.t
 t/pod_coverage.t

@@ -5,11 +5,12 @@ author:
 build_requires:
   ExtUtils::MakeMaker: 6.42
   Test::Exception: 0.21
+  Test::Moose: 0
   Test::More: 0.62
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.88'
+generated_by: 'Module::Install version 0.910'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -25,4 +26,5 @@ requires:
   Moose: 0.56
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.20
+  repository: git://git.moose.perl.org/MooseX-Getopt.git
+version: 0.21
