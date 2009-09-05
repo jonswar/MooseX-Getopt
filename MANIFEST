@@ -1,5 +1,7 @@
 ChangeLog
 inc/Module/Install.pm
+inc/Module/Install/AuthorRequires.pm
+inc/Module/Install/AuthorTests.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
@@ -8,7 +10,9 @@ inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/MooseX/Getopt.pm
+lib/MooseX/Getopt/Basic.pm
 lib/MooseX/Getopt/Dashes.pm
+lib/MooseX/Getopt/GLD.pm
 lib/MooseX/Getopt/Meta/Attribute.pm
 lib/MooseX/Getopt/Meta/Attribute/NoGetopt.pm
 lib/MooseX/Getopt/Meta/Attribute/Trait.pm
@@ -32,5 +36,6 @@ t/009_gld_and_explicit_options.t
 t/010_dashes.t
 t/100_gld_default_bug.t
 t/101_argv_bug.t
-t/pod.t
-t/pod_coverage.t
+t/102_basic_basic.t
+t/author/pod.t
+t/author/pod_coverage.t
