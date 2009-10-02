@@ -11,7 +11,7 @@ use Carp ();
 use Getopt::Long (); # GLD uses it anyway, doesn't hurt
 use constant HAVE_GLD => not not eval { require Getopt::Long::Descriptive };
 
-our $VERSION   = '0.22';
+our $VERSION   = '0.23';
 our $AUTHORITY = 'cpan:STEVAN';
 
 has ARGV       => (is => 'rw', isa => 'ArrayRef', metaclass => "NoGetopt");
@@ -31,6 +31,11 @@ sub new_with_options {
         if(!defined $configfile) {
             my $cfmeta = $class->meta->find_attribute_by_name('configfile');
             $configfile = $cfmeta->default if $cfmeta->has_default;
+            if (ref $configfile eq 'CODE') {
+                # not sure theres a lot you can do with the class and may break some assumptions
+                # warn?
+                $configfile = &$configfile($class);
+            }
             if (defined $configfile) {
                 $config_from_file = eval {
                     $class->get_config_from_file($configfile);
