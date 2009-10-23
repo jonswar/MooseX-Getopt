@@ -2,7 +2,6 @@ ChangeLog
 inc/Module/Install.pm
 inc/Module/Install/AuthorRequires.pm
 inc/Module/Install/AuthorTests.pm
-inc/Module/Install/AutoManifest.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
@@ -38,5 +37,6 @@ t/010_dashes.t
 t/100_gld_default_bug.t
 t/101_argv_bug.t
 t/102_basic_basic.t
+t/103_uc_bug.t
 t/author/pod.t
 t/author/pod_coverage.t

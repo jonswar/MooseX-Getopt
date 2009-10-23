@@ -11,7 +11,7 @@ use Carp ();
 use Getopt::Long (); # GLD uses it anyway, doesn't hurt
 use constant HAVE_GLD => not not eval { require Getopt::Long::Descriptive };
 
-our $VERSION   = '0.23';
+our $VERSION   = '0.24';
 our $AUTHORITY = 'cpan:STEVAN';
 
 has ARGV       => (is => 'rw', isa => 'ArrayRef', metaclass => "NoGetopt");
@@ -51,7 +51,7 @@ sub new_with_options {
     }
 
     my $constructor_params = ( @params == 1 ? $params[0] : {@params} );
-    
+
     Carp::croak("Single parameters to new_with_options() must be a HASH ref")
         unless ref($constructor_params) eq 'HASH';
 
@@ -133,7 +133,7 @@ sub _traditional_spec {
     foreach my $opt ( @{ $params{options} } ) {
         push @options, $opt->{opt_string};
 
-        my $identifier = $opt->{name};
+        my $identifier = lc($opt->{name});
         $identifier =~ s/\W/_/g; # Getopt::Long does this to all option names
 
         $name_to_init_arg{$identifier} = $opt->{init_arg};
@@ -165,7 +165,7 @@ sub _gld_spec {
             },
         ];
 
-        my $identifier = $opt->{name};
+        my $identifier = lc($opt->{name});
         $identifier =~ s/\W/_/g; # Getopt::Long does this to all option names
 
         $name_to_init_arg{$identifier} = $opt->{init_arg};
@@ -435,7 +435,7 @@ This method will take a set of default C<%params> and then collect
 params from the command line (possibly overriding those in C<%params>)
 and then return a newly constructed object.
 
-The special parameter C<argv>, if specified should point to an array  
+The special parameter C<argv>, if specified should point to an array
 reference with an array to use instead of C<@ARGV>.
 
 If L<Getopt::Long/GetOptions> fails (due to invalid arguments),
