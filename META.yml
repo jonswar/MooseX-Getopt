@@ -27,4 +27,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: git://git.moose.perl.org/MooseX-Getopt.git
-version: 0.25
+version: 0.26
