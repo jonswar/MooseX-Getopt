@@ -219,6 +219,16 @@ B<documentation> option for each attribute to document.
 If you have L<Getopt::Long::Descriptive> the C<usage> param is also passed to
 C<new>.
 
+=item B<process_args (%params)>
+
+This does most of the work of L<new_with_options>, analyzing the parameters
+and argv, except it does not actually call the constructor. It returns a
+L<MooseX::Getopt::ProcessedArgs> object.
+
+L<new_with_options> actually uses this method internally, so you can augment
+it in your own subclasses/roles, e.g. to tweak the parameters that ultimately
+get passed to the constructor.
+
 =item B<ARGV>
 
 This accessor contains a reference to a copy of the C<@ARGV> array

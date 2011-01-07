@@ -5,6 +5,7 @@ use Moose::Role;
 use MooseX::Getopt::OptionTypeMap;
 use MooseX::Getopt::Meta::Attribute;
 use MooseX::Getopt::Meta::Attribute::NoGetopt;
+use MooseX::Getopt::ProcessedArgs;
 use Carp ();
 
 use Getopt::Long ();
@@ -12,7 +13,7 @@ use Getopt::Long ();
 has ARGV       => (is => 'rw', isa => 'ArrayRef', metaclass => "NoGetopt");
 has extra_argv => (is => 'rw', isa => 'ArrayRef', metaclass => "NoGetopt");
 
-sub new_with_options {
+sub process_args {
     my ($class, @params) = @_;
 
     my $config_from_file;
@@ -65,14 +66,30 @@ sub new_with_options {
         $class->_getopt_full_usage($processed{usage});
     }
 
-    $class->new(
-        ARGV       => $processed{argv_copy},
-        extra_argv => $processed{argv},
-        %$constructor_params, # explicit params to ->new
-        %$params, # params from CLI
-    );
+    return MooseX::Getopt::ProcessedArgs->new
+        (
+         argv_copy          => $processed{argv_copy},
+         extra_argv         => $processed{argv},
+         usage              => $processed{usage},
+         constructor_params => $constructor_params, # explicit params to ->new
+         cli_params         => $params, # params from CLI
+        );
 }
 
+sub new_with_options {
+    my ($class, @params) = @_;
+
+    my $pa = $class->process_args(@params);
+
+    $class->new(
+        ARGV       => $pa->argv_copy,
+        extra_argv => $pa->extra_argv,
+        ( $pa->usage ? ( usage => $pa->usage ) : () ),
+        %{ $pa->constructor_params }, # explicit params to ->new
+        %{ $pa->cli_params }, # params from CLI
+        );
+}
+ 
 sub _getopt_spec { shift->_traditional_spec(@_); }
 
 sub _parse_argv {
